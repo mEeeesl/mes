@@ -1,0 +1,164 @@
+[Spring Initializr]
+
+Project: Gradle - Groovy
+Language: Java (17)
+Spring Boot: 3.5.11
+Project Metadata: 
+	Group: com.min
+	Artifact: mes
+	Name: mes
+	Description: project for Spring Boot 4.0.3
+	Package name: com.min.mes
+	Packaging: jar
+	Configuration: YAML
+	Java: 17
+Packaging: Jar
+Dependencies:
+	Spring Web
+	Spring Data JPA
+	Oracle Driver
+	Lombok
+	Spring Security
+
+------------------------------------------------------
+
+[Release]
+
+	Frontend (React): Netlify 또는 Vercel 
+		(무료 플랜이 강력하고 설정이 매우 쉬움)
+	Backend (Spring Boot): 
+		AWS(EC2), Render.com, Railway.app 등 
+		(Java 실행 환경이 필요한 곳)
+	Database (Oracle): 
+		Oracle Cloud (Free Tier) 또는 호스팅 서비스
+
+------------------------------------------------------
+
+[oracle]
+
+1. 테이블 생성
+
+username: mes
+password: mesel9405
+
+2. 권한부여(SYSTEM에서진행)
+
+-- 카탈로그 읽기 권한
+GRANT SELECT_CATALOG_ROLE TO MES;
+
+-- 모든 데이터 사전 객체 조회
+GRANT SELECT ANY DICTIONARY TO MES;
+
+-- SYS 스키마의 패키지 권한(시스템 카탈로그 권한 (=DBMS_CRYPTO 실행 권한) - 암호화 함수 생성을 위함)
+GRANT EXECUTE ON SYS.DBMS_CRYPTO TO MES;
+
+
+3. mes 연결 후 AES256 함수 생성
+
+--1. AES256 암호화 (키: MES9405...)
+CREATE OR REPLACE FUNCTION FN_AP_ENC_AES256(P_DATA IN VARCHAR2) RETURN VARCHAR2 IS
+    V_KEY RAW(32) := UTL_I18N.STRING_TO_RAW('MES94050000000000000000000000000', 'AL32UTF8');
+    V_ENC RAW(2000);
+BEGIN
+    IF P_DATA IS NULL THEN RETURN NULL; END IF;
+    V_ENC := DBMS_CRYPTO.ENCRYPT(
+        SRC => UTL_I18N.STRING_TO_RAW(P_DATA, 'AL32UTF8'),
+        TYP => DBMS_CRYPTO.ENCRYPT_AES256 + DBMS_CRYPTO.CHAIN_CBC + DBMS_CRYPTO.PAD_PKCS5,
+        KEY => V_KEY
+    );
+    RETURN RAWTOHEX(V_ENC);
+END;
+
+
+
+
+-- 2. AES256 복호화
+CREATE OR REPLACE FUNCTION FN_AP_DEC_AES256(P_DATA IN VARCHAR2) RETURN VARCHAR2 IS
+    V_KEY RAW(32) := UTL_I18N.STRING_TO_RAW('MES94050000000000000000000000000', 'AL32UTF8');
+    V_DEC RAW(2000);
+BEGIN
+    IF P_DATA IS NULL THEN RETURN NULL; END IF;
+    V_DEC := DBMS_CRYPTO.DECRYPT(
+        SRC => HEXTORAW(P_DATA),
+        TYP => DBMS_CRYPTO.ENCRYPT_AES256 + DBMS_CRYPTO.CHAIN_CBC + DBMS_CRYPTO.PAD_PKCS5,
+        KEY => V_KEY
+    );
+    RETURN UTL_I18N.RAW_TO_CHAR(V_DEC, 'AL32UTF8');
+END;
+
+
+
+
+------------------------------------------------------
+
+[React (Vite) Project] 
+
+Step 1: Vite 설치 및 프로젝트 생성
+터미널 명령
+
+# 최신 vite 프로젝트 생성
+npm create vite@latest frontend -- --template react
+
+# 생성된 폴더로 이동
+cd frontend
+
+# 필요한 라이브러리 설치
+npm install
+
+
+Step 2: 추가 라이브러리 설치
+로그인 페이지와 메인 페이지 이동, 
+백엔드와 통신을 위해 아래 두 가지 설치
+
+Bash
+npm install axios react-router-dom
+
+
+Step 3: 리액트 서버 구동
+리액트를 실행
+
+npm run dev
+
+
+-------------------------------------------------------
+
+
+[백엔드 디렉토리 설계 (Standard Package Structure)]
+
+스프링 부트의 표준 계층형 구조(Layered Architecture)
+
+src/main/java/com/example/project/ 아래에 다음 패키지들
+
+controller: 클라이언트(리액트)의 요청을 받는 입구
+service: 핵심 비즈니스 로직 (암호화 비교 등)
+repository: DB에 접근하는 인터페이스 (JPA)
+entity: DB 테이블과 매핑되는 자바 객체
+dto: 계층 간 데이터 전달용 객체 (Data Transfer Object)
+util: 아까 만든 EncryptionUtils가 있는 곳
+
+
+--------------------------------------------------------
+
+[ 용어 ]
+
+Persist (퍼시스트): DB저장 처리 시
+Proc(프로세스/프로시저): 로직 처리 시
+
+
+
+package com.min.mes.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+@Entity
+@Table(name = "USER_BASICINF")
+@Data
+public class TestEntity {
+    @Id
+    private String testSeq;
+    private String testTitle;
+    private String testContent;
+}

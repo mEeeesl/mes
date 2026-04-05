@@ -1,0 +1,49 @@
+server:
+  port: 80
+spring:
+  application:
+    name: mes
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@localhost:1521/xe
+    username: mes
+    password: mesel9405
+  jpa:
+    hibernate:
+      ddl-auto: update # 테이블 자동 생성/수정 (운영에선 none 처리가 나음)
+    show-sql: true # 실행되는 SQL 로그 출력
+    properties:
+      hibernate:
+        format_sql: true
+  mybatis:
+    mapper-locations: classpath:mapper/*.xml
+    configuration:
+      map-underscore-to-camel-case: true # USER_ID -> userId (camelCase 변환)
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+  #profiles: dev
+#dev
+app:
+  allow-domain-ip:
+    # Next.js + TypeScript
+    - http://localhost:3000
+
+    # 바닐라 리액트..
+    #- http://localhost:5173
+    #- http://127.0.0.1:5173
+    #- http://192.168.219.100:5173
+  is-real: false
+
+#real
+#app:
+#  allow-domain-ip: http://localhost:5173
+#  is-real: false
+
+jwt:
+  # 최소 32바이트.. 방식에 따라 다르나 나는 로컬에 하드코딩
+  # 일반적인 방식 : Environment Variable => OS 환경 변수에 키를 저장하고 애플리케이션이 읽어옴
+  # 금융권/대기업 : Vault (HashiCorp) => 전문 보안 솔루션에 키를 저장하고 API로 호출
+  # 클라우드 환경 : AWS/GCP Secret Manager => 클라우드 서비스에서 제공하는 키 관리
+  # 해당 키를 secret: ${JWT_SECRET_KEY} 과 같이 환경 변수에서 읽어오는 방식임.
+  secret: "0mes-1pjt-2spring-3security-4boot-typescript5-zustand6-key-kym-940526"
