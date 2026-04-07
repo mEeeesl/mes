@@ -4,10 +4,17 @@ spring:
   application:
     name: mes
   datasource:
-    driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@localhost:1521/xe
+    #### PostgreSQL
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
     username: mes
     password: mesel9405
+
+    #### ORACLE
+    #driver-class-name: oracle.jdbc.OracleDriver
+    #url: jdbc:oracle:thin:@localhost:1521/xe
+    #username: mes
+    #password: mesel9405
   jpa:
     hibernate:
       ddl-auto: update # 테이블 자동 생성/수정 (운영에선 none 처리가 나음)

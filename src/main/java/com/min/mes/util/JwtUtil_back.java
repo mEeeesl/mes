@@ -47,11 +47,15 @@ public class JwtUtil_back {
     }
 
     public static String validateToken(String token) throws JwtException {
+        return "";
+        /*
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject(); // username 반환
+
+         */
     }
 }

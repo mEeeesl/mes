@@ -13,8 +13,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey; // jjwt 0.12.5 버전
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
+//import java.security.Key; // jjwt 0.11.5.버전
 import java.util.Date;
 
 @Component // 빈 등록하여 @Value 작동하도록
@@ -25,7 +26,8 @@ public class JwtUtil {
     private boolean isReal;
 
 
-    private static Key secretKey;
+    //private static Key secretKey; // jjwt 0.11.5 버전
+    private static SecretKey secretKey;
 
     @Value("${jwt.secret}") // application.yaml 설정값 로드(난 하드코딩..)
     private String secretKeyStr;
@@ -36,11 +38,22 @@ public class JwtUtil {
     // ( 서버 기동 시 String 키를 Ket 객체로 변환 )
     @PostConstruct
     public void init() {
-        this.secretKey = Keys.hmacShaKeyFor(secretKeyStr.getBytes((StandardCharsets.UTF_8)));
+        //this.secretKey = Keys.hmacShaKeyFor(secretKeyStr.getBytes((StandardCharsets.UTF_8))); // jjwt 0.11.5 버전
+        // 2. static 변수는 클래스명으로 접근하거나 직접 대입 (this 제외)
+        secretKey = Keys.hmacShaKeyFor(secretKeyStr.getBytes(StandardCharsets.UTF_8));
     }
 
     // ( 토큰 생성 (Access / Refresh 공용 )
     public static String generateToken(String userId, String userNm) {
+        /* jjwt 0.12.5 버전 */
+        return Jwts.builder()
+                .subject(userId)         // PK값 setSubject -> subject
+                .claim("userNm", userNm)    // 보조정보
+                .issuedAt(new Date())    // 생성시간 setIssuedAt -> issuedAt
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXP)) // setExpiration -> expiration
+                .signWith(secretKey)     // 알고리즘(HS256) 생략 가능 (SecretKey 객체에 정보가 포함됨)
+                .compact();
+        /* jjwt 0.11.5 버전 이지만 호환은 됨
         return Jwts.builder()
                 .setSubject(userId) // PK값
                 .claim("userNm", userNm) // 보조정보
@@ -48,6 +61,7 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXP)) // 만료시간
                 .signWith(secretKey, SignatureAlgorithm.HS256) // Key 객체와 알고리즘
                 .compact();
+         */
     }
 
     // ( 응답용 쿠키 생성 (Access / Refresh 공용) )
@@ -64,12 +78,22 @@ public class JwtUtil {
 
     // ( 토큰에서 UserId 추출 )
     public static String validateToken(String token) throws JwtException {
+        /* jjwt 0.12.5 버전 */
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token) // parseClaimsJws -> parseSignedClaims
+                .getPayload()             // getBody -> getPayload
+                .getSubject();
+
+        /* jjwt 0.11.5 버전
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject(); // username 반환
+         */
     }
 
     // 쿠키삭제
@@ -89,14 +113,25 @@ public class JwtUtil {
     // 만료된 토큰에서 UserId 뽑는 유틸
     public String getUserIdFromExpiredToken(String token) {
         try {
+            /* jjwt 0.12.5 버전 */
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+
+            /* jjwt 0.11.5 버전
             return Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody()
                     .getSubject();
+             */
         } catch (ExpiredJwtException e) {
             // 만료되었어도 에러 객체 안에 담긴 body에서 정보를 꺼낼 수 있음
+            // 만료된 경우에도 e.getClaims()를 통해 페이로드(Payload)에 접근 가능합니다.
             return e.getClaims().getSubject();
         } catch (Exception e) {
             return null;
