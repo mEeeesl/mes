@@ -3,12 +3,34 @@ server:
 spring:
   application:
     name: mes
+  profiles:
+    include: secret  # application-secret.yml
   datasource:
     #### PostgreSQL
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: mes
-    password: mesel9405
+    #url: jdbc:postgresql://localhost:5432/postgres?currentSchema=mes  # 여기에 스키마명 입력
+    #url: jdbc:postgresql://localhost:5432/mes # 디비버 PostgreSQL > mes 계정에 직접붙기 방식
+    #username: mes # 디비버 PostgreSQL 직접붙기 방식
+    #password: mesel9405 # 디비버 PostgreSQL 직접붙기 방식
+
+    # Supabase 연동방식 - 클라우드 DB 서버
+    # 5432 포트(Direct Connection) - IPv4 제한됨.. IPv6 기반임..
+    # 6543 포트(Transaction Pooler)
+    # ?currentSchema=mes,public :: mes,public 순서로 세팅 시, JPA나 MyBatis에서 테이블 이름만 썼을 때 mes 스키마를 먼저 뒤지고, 없으면 public을 찾음
+    # 근데 6543포트에선 겟방식을 지원하지 않음.. 그래서 디비버 툴이나 Supabase SQL Editor에서 설정함
+    # ALTER ROLE postgres SET search_path TO mes, public;
+    # url: jdbc:postgresql://db.bvqqrijtzvsqtuboasiu.supabase.co:6543/postgres?currentSchema=mes,public
+    url: jdbc:postgresql://db.bvqqrijtzvsqtuboasiu.supabase.co:6543/postgres
+
+    # (연결안정성 추가옵션)
+    # Supabase는 클라우드 DB라 연결이 유휴 상태일 때 끊어질 수 있음, 이를 방지하기 위해 hikari 설정을 조금 추가
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      # 연결이 살아있는지 확인하는 쿼리
+      connection-test-query: SELECT 1
 
     #### ORACLE
     #driver-class-name: oracle.jdbc.OracleDriver
@@ -54,3 +76,8 @@ jwt:
   # 클라우드 환경 : AWS/GCP Secret Manager => 클라우드 서비스에서 제공하는 키 관리
   # 해당 키를 secret: ${JWT_SECRET_KEY} 과 같이 환경 변수에서 읽어오는 방식임.
   secret: "0mes-1pjt-2spring-3security-4boot-typescript5-zustand6-key-kym-940526"
+
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace # 쿼리 실행 시 데이터 로깅

@@ -13,7 +13,7 @@ public class UserEntity { //Repository 조회 편의
 
     @Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY) -- 자동증가
-    @Column(name="USER_ID", unique = true, nullable = false)
+    @Column(name="user_id", unique = true, nullable = false)
     private String userId;
 
     @Column(nullable = false, length = 64)
