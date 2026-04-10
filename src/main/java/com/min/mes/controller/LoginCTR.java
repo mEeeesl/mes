@@ -34,7 +34,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController // front로 JsonData 떨굼
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 //@CrossOrigin(origins = "http://localhost:5173") // 리액트 포트 허용
 //@CrossOrigin(origins = BaseWalker.ALLOW_DOMAIN_IP) // 리액트 포트 허용
