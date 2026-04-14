@@ -23,10 +23,13 @@ public class SignupSVC extends BaseWalker {
     private final UserRepository userRepository;
     private final KakaoSVC kakaoSVC; // 주입
 
-    public boolean selectUser(SignupDTO dto) throws Exception {
+    //public boolean selectUser(SignupDTO dto) throws Exception {
+    public boolean selectUser(String userId) throws Exception {
         boolean isExist = false;
 
-        if(userRepository.findById(dto.getUserId()).isPresent()){
+
+        //if(userRepository.findById(dto.getUserId()).isPresent()){
+        if(userRepository.findById(userId).isPresent()){
             isExist = true;
         }
 
@@ -74,7 +77,7 @@ public class SignupSVC extends BaseWalker {
                 .build();
 
         // DB 저장(JPA)
-        /////userRepository.save(newUser);
+        userRepository.save(newUser);
 
         resMap.put("cd", "0000");
         resMap.put("msg", "회원가입이 완료되었습니다.");

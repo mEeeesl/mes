@@ -1,10 +1,15 @@
 package com.min.mes.walker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.min.mes.dto.user.UserVO;
+import com.min.mes.util.JwtUtil;
+import com.min.mes.util.StringUtil;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -25,6 +30,35 @@ public abstract class BaseWalker {
     @Value("${app.is-real}")
     private boolean isReal;
 */
+    protected final String commonFailCd = "4000";
+    protected final String commmonSuccessCd = "0000";
+
+    // 사용자 ID 추출
+    protected final String getLoginId() {
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getName)
+                .orElse(StringUtil.checkNull(null)); // == orElse("");
+
+        /*
+        // SecurityContext에서 인증 정보(userId) 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication != null && authentication.isAuthenticated()) {
+            return authentication.getName();
+        }
+        return "";
+        */
+    }
+
+    // 사용자 정보 전부 추출 - 근데 이건, 개인정보 null인 SessionUser 등 하나 만들어서 사용하는게 나을 듯
+    protected final UserVO getLoginUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth != null && auth.getPrincipal() instanceof UserVO) {
+            return (UserVO) auth.getPrincipal();
+        }
+        return null;
+    }
 
     protected void BaseWalker() {
         /*

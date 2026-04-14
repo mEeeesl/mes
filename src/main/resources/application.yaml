@@ -6,7 +6,7 @@ spring:
   profiles:
     include:
       - secret # application-secret.yml - Supabase
-      - kakao # application-kakao.yaml - Kakao(REST API KEY, Redirect URI - KAKAO Developer 사이트 + vercel 사이트에도 환경변수 등록완료)
+      - kakao # application-kakao.yml - Kakao(REST API KEY, Redirect URI - KAKAO Developer 사이트 + vercel 사이트에도 환경변수 등록완료)
   datasource:
     #### PostgreSQL
     driver-class-name: org.postgresql.Driver

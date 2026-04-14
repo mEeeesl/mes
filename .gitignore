@@ -38,3 +38,6 @@ out/
 
 # Database secrets
 application-secret.yml
+
+# Kakao secrets
+application-kakao.yml
