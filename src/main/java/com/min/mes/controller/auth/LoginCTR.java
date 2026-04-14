@@ -1,10 +1,8 @@
-package com.min.mes.controller;
+package com.min.mes.controller.auth;
 
 import com.min.mes.ApiResponse;
 import com.min.mes.AppProperties;
-import com.min.mes.dto.user.UserVO;
 import com.min.mes.entity.UserEntity;
-import com.min.mes.mapper.user.UserMapper;
 import com.min.mes.repository.UserRepository;
 import com.min.mes.service.LoginSVC;
 import com.min.mes.service.user.UserService;
@@ -12,13 +10,11 @@ import com.min.mes.util.JwtUtil;
 import com.min.mes.util.StringUtil;
 import com.min.mes.walker.BaseWalker;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

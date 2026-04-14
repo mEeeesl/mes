@@ -1,0 +1,5 @@
+kakao:
+  # 환경변수가 있으면 그 값을 쓰고, 없으면 콜론(:) 뒤의 기본값을 씁니다.
+  client-id: ${KAKAO_REST_API_KEY:4277d99da79edf85c961e096c3f0a69a} #REST API KEY
+  redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:3000/signup/callback}
+  client-secret: ${KAKAO_CLIENT_SCRET:EKf2XKh3bLXOv2u4vrU5xJWdusfpjI8p} #CLIENT SECRET CODE
