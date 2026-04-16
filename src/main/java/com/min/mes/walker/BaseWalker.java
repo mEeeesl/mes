@@ -30,8 +30,14 @@ public abstract class BaseWalker {
     @Value("${app.is-real}")
     private boolean isReal;
 */
+
+    // 자식 클래스들이 사용할 수 있도록 protected로 선언
+    // 실제 로거 객체 (자식 클래스 이름으로 초기화됨)
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     protected final String commonFailCd = "4000";
     protected final String commmonSuccessCd = "0000";
+
 
     // 사용자 ID 추출
     protected final String getLoginId() {
@@ -60,7 +66,7 @@ public abstract class BaseWalker {
         return null;
     }
 
-    protected void BaseWalker() {
+    protected static void BaseWalker() {
         /*
         this.ALLOW_DOMAIN_IP = allowDomainIp;
         this.IS_REAL = isReal;
@@ -75,6 +81,7 @@ public abstract class BaseWalker {
         }
 
          */
+
     }
 
     protected void Sysout(Object text) {
@@ -134,9 +141,6 @@ public abstract class BaseWalker {
 
     /* Logging [S] */
 
-    // 자식 클래스들이 사용할 수 있도록 protected로 선언
-    // 실제 로거 객체 (자식 클래스 이름으로 초기화됨)
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 커스텀 info 로깅

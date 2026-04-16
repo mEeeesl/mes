@@ -1,0 +1,45 @@
+# 보안과 이미지 크기 최적화 방식) 빌드와 실행을 분리한 Multi-stage 빌드 방식
+
+# 1단계: Build Stage
+FROM eclipse-temurin:17-jdk-alpine AS build
+WORKDIR /app
+
+# Gradle 래퍼와 설정 파일들을 먼저 복사 (캐시 활용)
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+
+# 의존성 먼저 다운로드 (코드 변경 시에도 의존성은 캐시됨 - 빌드 속도 향상)
+RUN ./gradlew dependencies --no-daemon
+
+# 전체 소스 복사 및 빌드 ( 테스트 제외 - 메모리 절약 )
+COPY src src
+RUN ./gradlew clean build -x test --no-daemon
+
+# 2단계: Run Stage (실행 전용 경량 이미지)
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# 실행에 필요한 jar 파일만 복사
+COPY --from=build /app/build/libs/*.jar app.jar
+
+# Render용 포트 설정 (기본 10000 포트 권장)
+ENV PORT 10000
+EXPOSE 10000
+
+# 서비스를 위한 JVM 메모리 및 타임존 설정
+# Render 무료티어(512MB)라면 아래 설정을 추천
+# 실행 명령어
+ENTRYPOINT ["java", \
+            "-Xmx400M", \
+            "-Xms400M", \
+            "-Duser.timezone=Asia/Seoul", \
+            "-jar", \
+            "app.jar"]
+
+# Render 연동 시 주의사항
+# 1. Health Check: 상업용 서비스는 서버가 살아있는지 주기적으로 확인해야 합니다. Render 설정의 Health Check Path를 /api/auth/login이나 별도의 /api/health로 지정
+# 2. Auto-Deploy: GitHub에 main 브랜치 push 시 자동 배포되도록 설정하되, 나중에 상업용으로 정식 런칭하면 develop 브랜치에서 검증 후 main으로 머지하는 전략 필요
+# 3. 포트 설정: Render는 기본적으로 80 또는 10000 포트를 기대합니다. 스프링 부트 application.properties에 server.port=10000을 명시하거나, Render 환경변수에 PORT: 10000을 추가
+# 배포: Render에서 Runtime을 Docker로 선택하고 배포 버튼

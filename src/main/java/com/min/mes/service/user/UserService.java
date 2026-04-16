@@ -23,6 +23,20 @@ public class UserService {
          */
     }
 
+    public UserEntity getUserBySocialId(String provider, String code) {
+        UserEntity userEntity = null;
+        if("kakao".equals(provider)){
+             userEntity = userRepository.findByKakaoTokenId(code).orElse(null);
+        } else if("GOOGLE".equals(provider)){
+
+        } else if("NAVER".equals(provider)){
+
+        }
+
+        //return userRepository.findByKakaoTokenId(code).orElse(null);
+        return userEntity;
+    }
+
     public void updateRefreshToken(String userId, String newToken) {
         UserEntity user = getUser(userId);
         userRepository.updateChkToken(userId, newToken);

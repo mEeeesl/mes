@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<UserEntity, String> {
     Optional<UserEntity> findById(String userId); // JPA 메서드 > "SELECT * FROM USER_BASICINF WHERE USER_ID = ?" 쿼리
+    Optional<UserEntity> findByKakaoTokenId(String kakaoTokenId); // JPA 메서드 > "SELECT * FROM USER_BASICINF WHERE KAKAO_TOKEN_ID = ?" 쿼리
 
     @Modifying(clearAutomatically = true) // 실행 후 영속성 컨텍스트 초기화
     @Transactional

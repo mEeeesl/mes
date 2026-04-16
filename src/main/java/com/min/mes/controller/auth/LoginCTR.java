@@ -2,6 +2,7 @@ package com.min.mes.controller.auth;
 
 import com.min.mes.ApiResponse;
 import com.min.mes.AppProperties;
+import com.min.mes.controller.kakao.KakaoSVC;
 import com.min.mes.entity.UserEntity;
 import com.min.mes.repository.UserRepository;
 import com.min.mes.service.LoginSVC;
@@ -37,6 +38,7 @@ import java.util.Optional;
 public class LoginCTR extends BaseWalker {
     private final LoginSVC loginService;
     private final UserService userService;
+    private final KakaoSVC kakaoSVC;
     private final AppProperties appProperties;
     private final JwtUtil jwtUtil;
 
@@ -293,8 +295,6 @@ public class LoginCTR extends BaseWalker {
 
     }
 
-
-
     // 추후 로그아웃 메소드 내 아래내용 필수
     /*
 
@@ -305,6 +305,124 @@ public class LoginCTR extends BaseWalker {
     .build();
 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
      */
+
+    /**
+     * @param paramMap code
+     * @param provider kakao | google | naver
+     * @return
+     */
+    @PostMapping("/social/{provider}/login")
+    public ResponseEntity<ApiResponse> socialLogin(@RequestBody Map<String, Object> paramMap, @PathVariable String provider, HttpServletResponse response){
+        logInfo(paramMap);
+
+        Map returnMap = new HashMap();
+        ResponseCookie accessCookie = null;
+        ResponseCookie refreshCookie = null;
+
+        String code = StringUtil.checkNull(paramMap.get("code"));
+        String social = StringUtil.checkNull(paramMap.get("provider"));
+
+        try {
+            //loginService.loginProc(userId, chkPass);
+            //ApiResponse apiResponse = (ApiResponse)loginService.loginProc(userId, chkPass);
+
+            if (!"".equals(StringUtil.checkNull(code))) {
+
+
+                // --- 카카오 유효성 검증 ---
+                String kakaoAccessToken = StringUtil.checkNull(kakaoSVC.getKakaoAccessToken(code));
+                logInfo((kakaoAccessToken));
+                if ("".equals(kakaoAccessToken)) {
+                    return ResponseEntity
+                            .status(HttpStatus.UNAUTHORIZED)
+                            //.body(new ApiResponse<>("404", e.getMessage(), null));
+                            .body(ApiResponse.failMsg(social + " 토큰이 유효하지 않습니다."));
+                }
+
+                Map<String, Object> kakaoInfo = kakaoSVC.getKakaoUserInfo(kakaoAccessToken);
+                logInfo(kakaoInfo);
+                if (kakaoInfo == null) {
+                    return ResponseEntity
+                            .status(HttpStatus.UNAUTHORIZED)
+                            //.body(new ApiResponse<>("404", e.getMessage(), null));
+                            .body(ApiResponse.failMsg(social + " 사용자 정보를 불러올 수 없습니다."));
+                }
+
+                // 이름 일치 여부 검증 (선택 사항)
+                //Map<String, Object> properties = (Map<String, Object>) kakaoInfo.get("properties");
+                //String kakaoNickname = (String) properties.get("nickname");
+
+                String kakaoId = StringUtil.checkNull(kakaoInfo.get("id")); // 카카오 사용자 고유 ID
+
+
+
+                // 1. kakaoId로 유저 정보 조회
+                UserEntity user = userService.getUserBySocialId(social, kakaoId);
+
+                // ( 서비스 > 유저 인증 )
+                String accessToken = "";
+                String refreshToken = "";
+
+                if(user != null) {
+
+                    // ( 토큰 생성 )
+                    accessToken = jwtUtil.generateToken(user.getUserId(), user.getUserNm());
+                    refreshToken = jwtUtil.generateToken(user.getUserId(), user.getUserNm());
+
+                    // ( refreshToken DB에 저장 - 추후 대조 )
+                    userService.updateRefreshToken(user.getUserId(), refreshToken);
+
+                    // ( 쿠키 굽기 )
+                    accessCookie = jwtUtil.createCookie("accessToken", accessToken);
+                    refreshCookie = jwtUtil.createCookie("refreshToken", refreshToken);
+
+                    returnMap.put("userId", user.getUserId());
+                    returnMap.put("userNm", user.getUserNm());
+
+                    // ( 바디에는 토큰 제외 정보만 )
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                            .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                            //.body(ApiResponse.success(apiResponse));
+                            .body(ApiResponse.success(
+                                    Map.of(
+                                            "user", returnMap
+                                    )
+                            ));
+                } else {
+                    return ResponseEntity
+                            .status(HttpStatus.UNAUTHORIZED)
+                            //.body(new ApiResponse<>("404", e.getMessage(), null));
+                            .body(ApiResponse.failMsg(social + " 연동 계정이 존재하지 않습니다."));
+                }
+
+
+
+            } else {
+
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        //.body(new ApiResponse<>("404", e.getMessage(), null));
+                        .body(ApiResponse.failMsg("유효하지 않은 " + social + " 코드입니다."));
+
+            }
+
+
+            //return ResponseEntity.ok(new ApiResponse<>(200, "로그인 성공...", resMap));
+            //return new ApiResponse<>(200, "성공이요", null);
+
+        } catch (Exception e) {
+            logErr(e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    //.body(new ApiResponse<>("404", e.getMessage(), null));
+                    .body(ApiResponse.failMsg("로그인 오류"));
+            //return ResponseEntity.internalServerError().body("에러 발생: " + e.getMessage());
+        }
+
+
+    }
 
 
 }

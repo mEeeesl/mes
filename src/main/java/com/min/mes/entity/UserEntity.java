@@ -45,7 +45,7 @@ public class UserEntity { //Repository 조회 편의
     private String ju1;
     @Column(name="ju2")
     private String ju2;
-    @Column(name="kakao_token_id")
+    @Column(name="kakao_token_id", unique = true)
     private String kakaoTokenId;
 
 }
