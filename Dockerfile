@@ -28,8 +28,8 @@ COPY --from=build /app/build/libs/*.jar app.jar
 # 리소스 폴더에 있는 설정 파일들을 현재 작업 디렉토리(/app)로 복사
 # file:./application-kakao.yml 설정을 그대로 쓸 수 있음
 # 추후 유료 클라우드 이관 시, 해당 사이트 내 대시보드에서 환경 변수 설정하자
-COPY --from=build /app/src/main/resources/application-kakao.yml ./application-kakao.yml
-COPY --from=build /app/src/main/resources/application-secret.yml ./application-secret.yml
+#COPY --from=build /app/src/main/resources/application-kakao.yml ./application-kakao.yml
+#COPY --from=build /app/src/main/resources/application-secret.yml ./application-secret.yml
 
 # Render용 포트 설정 (기본 10000 포트 권장)
 ENV PORT 10000
