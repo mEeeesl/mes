@@ -43,7 +43,7 @@ ENTRYPOINT ["java", \
             "-Xmx400M", \
             "-Xms400M", \
             "-Duser.timezone=Asia/Seoul", \
-            "-Dspring.config.additional-location=file:./application-secret.yml,file:./application-kakao.yml", \
+            "-Dspring.config.additional-location=file:/etc/secrets/application-secret.yml,file:/etc/secrets/application-kakao.yml", \
             "-jar", \
             "app.jar"]
 
