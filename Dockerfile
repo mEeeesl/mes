@@ -39,11 +39,12 @@ EXPOSE 10000
 # Render 무료티어(512MB)라면 아래 설정을 추천
 # 실행 명령어
 # Render 서버가 켜질 때 "/app/~~secret.yml , kakao.yml 파일도 읽도록 설정 - Docker로 빌드 시 app.jar라는 덩어리만 남는데, 외부 파일(file:/app/...)을 강제로 읽게 하는 설정
+# optional: 키워드를 붙여주면 파일이 하나라도 없거나 로딩 순서가 꼬여도 전체 앱이 죽지 않고 환경 변수를 찾아감
 ENTRYPOINT ["java", \
             "-Xmx400M", \
             "-Xms400M", \
             "-Duser.timezone=Asia/Seoul", \
-            "-Dspring.config.additional-location=file:/etc/secrets/application-secret.yml,file:/etc/secrets/application-kakao.yml", \
+            "-Dspring.config.additional-location=optional:file:/etc/secrets/application-secret.yml,optional:file:/etc/secrets/application-kakao.yml", \
             "-jar", \
             "app.jar"]
 

@@ -27,18 +27,20 @@ spring:
     # (연결안정성 추가옵션)
     # Supabase는 클라우드 DB라 연결이 유휴 상태일 때 끊어질 수 있음, 이를 방지하기 위해 hikari 설정을 조금 추가
     hikari:
-      maximum-pool-size: 10
+      maximum-pool-size: 4 # 3->4
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
       # 연결이 살아있는지 확인하는 쿼리
       connection-test-query: SELECT 1
+      #추가
+      keepalive-time: 30000
 
     #### ORACLE
     #driver-class-name: oracle.jdbc.OracleDriver
     #url: jdbc:oracle:thin:@localhost:1521/xe
     #username: mes
-    #password: mesel9405
+    #password:
   jpa:
     hibernate:
       ddl-auto: update # 테이블 자동 생성/수정 (운영에선 none 처리가 나음)
