@@ -71,13 +71,13 @@ app:
 #  allow-domain-ip: http://localhost:5173
 #  is-real: false
 
-jwt:
+#jwt:
   # 최소 32바이트.. 방식에 따라 다르나 나는 로컬에 하드코딩
   # 일반적인 방식 : Environment Variable => OS 환경 변수에 키를 저장하고 애플리케이션이 읽어옴
   # 금융권/대기업 : Vault (HashiCorp) => 전문 보안 솔루션에 키를 저장하고 API로 호출
   # 클라우드 환경 : AWS/GCP Secret Manager => 클라우드 서비스에서 제공하는 키 관리
   # 해당 키를 secret: ${JWT_SECRET_KEY} 과 같이 환경 변수에서 읽어오는 방식임.
-  secret: "0mes-1pjt-2spring-3security-4boot-typescript5-zustand6-key-kym-940526"
+  #secret: "내키-시크릿별도파일관리"
 
 logging:
   level:

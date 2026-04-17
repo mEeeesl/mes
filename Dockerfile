@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Gradle 래퍼와 설정 파일들을 먼저 복사 (캐시 활용)
 COPY gradlew .
+RUN chmod +x gradlew  # (실행 권한 부여 - 리눅스 기반 도커 환경에서는 실행 권한을 명시, 터미널에서 파일 자체 권한 설정을 바꾸고 커밋해두됨)
 COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
@@ -31,10 +32,12 @@ EXPOSE 10000
 # 서비스를 위한 JVM 메모리 및 타임존 설정
 # Render 무료티어(512MB)라면 아래 설정을 추천
 # 실행 명령어
+# Render 서버가 켜질 때 "/app/~~secret.yml , kakao.yml 파일도 읽도록 설정 - Docker로 빌드 시 app.jar라는 덩어리만 남는데, 외부 파일(file:/app/...)을 강제로 읽게 하는 설정
 ENTRYPOINT ["java", \
             "-Xmx400M", \
             "-Xms400M", \
             "-Duser.timezone=Asia/Seoul", \
+            "-Dspring.config.additional-location=file:/app/application-secret.yml,file:/app/application-kakao.yml", \
             "-jar", \
             "app.jar"]
 
