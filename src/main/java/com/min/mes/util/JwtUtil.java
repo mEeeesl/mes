@@ -25,7 +25,6 @@ public class JwtUtil {
     @Value("${app.is-real:false}")
     private boolean isReal;
 
-
     //private static Key secretKey; // jjwt 0.11.5 버전
     private static SecretKey secretKey;
 
@@ -70,6 +69,7 @@ public class JwtUtil {
         System.out.println("#########################################################################");
         System.out.println("isReal ? " + isReal);
         System.out.println("#########################################################################");
+
         return ResponseCookie.from(name, value) // 쿠키 키, 밸류
                 .httpOnly(true) // JS 접근 차단(XSS 방지)
                 //.secure(appProperties.isReal()) // HTTPS만 전송(로컬테스트시 false)
@@ -77,7 +77,8 @@ public class JwtUtil {
                 .path("/") // 모든 경로에서 쿠키 유효
                 .maxAge(REFRESH_TOKEN_EXP)
                 //.sameSite("Lax") // CSRF 방지 // 백엔드는 Render, 프론트는 vercel로 도메인이 다르기에 Cross-Site 허용해줘야함
-                .sameSite("None") // 크로스사이트 전송가능한 쿠키로 생성
+                //.sameSite("None") // 크로스사이트 전송가능한 쿠키로 생성
+                .sameSite(isReal ? "None" : "Lax")
                 .build();
     }
 
