@@ -22,7 +22,7 @@ import java.util.Date;
 public class JwtUtil {
     //private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static AppProperties appProperties;
-    @Value("${app.is-real}")
+    @Value("${app.is-real:false}")
     private boolean isReal;
 
 
@@ -66,6 +66,10 @@ public class JwtUtil {
 
     // ( 응답용 쿠키 생성 (Access / Refresh 공용) )
     public ResponseCookie createCookie(String name, String value) {
+
+        System.out.println("#########################################################################");
+        System.out.println("isReal ? " + isReal);
+        System.out.println("#########################################################################");
         return ResponseCookie.from(name, value) // 쿠키 키, 밸류
                 .httpOnly(true) // JS 접근 차단(XSS 방지)
                 //.secure(appProperties.isReal()) // HTTPS만 전송(로컬테스트시 false)
