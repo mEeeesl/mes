@@ -61,6 +61,7 @@ app:
   allow-domain-ip:
     # Next.js + TypeScript
     - http://localhost:3000
+    - https://eeesel.vercel.app
 
     # 바닐라 리액트..
     #- http://localhost:5173
