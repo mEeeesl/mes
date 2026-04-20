@@ -69,10 +69,11 @@ public class JwtUtil {
         return ResponseCookie.from(name, value) // 쿠키 키, 밸류
                 .httpOnly(true) // JS 접근 차단(XSS 방지)
                 //.secure(appProperties.isReal()) // HTTPS만 전송(로컬테스트시 false)
-                .secure(isReal) // HTTPS만 전송(로컬테스트시 false)
+                .secure(isReal) // HTTPS만 전송(로컬테스트시 false) - Render 환경변수에 TRUE로 세팅함
                 .path("/") // 모든 경로에서 쿠키 유효
                 .maxAge(REFRESH_TOKEN_EXP)
-                .sameSite("Lax") // CSRF 방지
+                //.sameSite("Lax") // CSRF 방지 // 백엔드는 Render, 프론트는 vercel로 도메인이 다르기에 Cross-Site 허용해줘야함
+                .sameSite("None") // 크로스사이트 전송가능한 쿠키로 생성
                 .build();
     }
 

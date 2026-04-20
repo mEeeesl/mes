@@ -62,7 +62,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(appProperties.getAllowDomainIp());
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // 일단 전체 허용 후 필요한 것만 추리기 - "Authorization", "Cache-Control", "Content-Type", "Origin", "Accept"
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // 쿠키를 위해 true
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
