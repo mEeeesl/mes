@@ -21,11 +21,11 @@ public class UserEntity { //Repository 조회 편의
     @Column(name="chk_token")
     private String chkToken;
 
-    @Column(name="user_nm", nullable = false)
+    @Column(name="user_nm", nullable = false, unique = true)
     private String userNm;
     @Column(name="birth")
     private String birth;
-    @Column(name="email")
+    @Column(name="email", unique = true)
     private String email;
     @Column(name="phone_num")
     private String phoneNum;

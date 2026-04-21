@@ -62,6 +62,9 @@ dependencies {
 	// PostgreSQL
 	runtimeOnly 'org.postgresql:postgresql'
 
+	// Brevo (SMTP - EMAIL)
+	implementation 'com.sendinblue:sib-api-v3-sdk:7.0.0'
+
 }
 
 tasks.named('test') {

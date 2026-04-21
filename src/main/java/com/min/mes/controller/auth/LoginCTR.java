@@ -211,23 +211,37 @@ public class LoginCTR extends BaseWalker {
 
         UserEntity user = null;
 
-        // JWT 검증 실행. 검증 실패 시 에러 뱉고 이하 로직 수행없이 종료
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(!"".equals(userId)){
-            user = userService.getUser(userId);
-            returnMap.put("userId", user.getUserId());
-            returnMap.put("userNm", user.getUserNm());
+        try {
+            String userId = StringUtil.checkNull(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            if(!"".equals(userId)){
+                user = userService.getUser(userId);
+                returnMap.put("userId", user.getUserId());
+                returnMap.put("userNm", user.getUserNm());
+
+                // ( 바디에는 토큰 제외 정보만 )
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(ApiResponse.success(
+                                Map.of(
+                                        "user", returnMap
+                                )
+                        ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logErr("getProfile :: 유효하지 않은 토큰");
         }
+        // JWT 검증 실행. 검증 실패 시 에러 뱉고 이하 로직 수행없이 종료
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.failMsg("토큰이 유효하지 않습니다"));
 
 
 
-        // ( 바디에는 토큰 제외 정보만 )
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(
-                        Map.of(
-                                "user", returnMap
-                        )
-                ));
+
+
+
 
 
 

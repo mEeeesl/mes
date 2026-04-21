@@ -21,6 +21,14 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final AppProperties appProperties;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(AppProperties appProperties, JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.appProperties = appProperties;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -46,13 +54,10 @@ public class SecurityConfig {
                         })
                 )
 
-                .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+                //.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // 서버재기동시 new로 만들어서 키일치가안됨
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-    private final AppProperties appProperties;
-    public SecurityConfig(AppProperties appProperties) {
-        this.appProperties = appProperties;
+        return http.build();
     }
 
     @Bean

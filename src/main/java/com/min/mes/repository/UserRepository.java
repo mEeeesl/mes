@@ -13,8 +13,14 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     Optional<UserEntity> findById(String userId); // JPA 메서드 > "SELECT * FROM USER_BASICINF WHERE USER_ID = ?" 쿼리
     Optional<UserEntity> findByKakaoTokenId(String kakaoTokenId); // JPA 메서드 > "SELECT * FROM USER_BASICINF WHERE KAKAO_TOKEN_ID = ?" 쿼리
 
+    Optional<UserEntity> findByUserNmAndEmail(String userNm, String email);
+    Optional<UserEntity> findByUserIdAndUserNmAndEmail(String userId, String userNm, String email);
+
     @Modifying(clearAutomatically = true) // 실행 후 영속성 컨텍스트 초기화
     @Transactional
     @Query("UPDATE UserEntity u SET u.chkToken = :token WHERE u.id = :userId")
     int updateChkToken(@Param("userId") String userId, @Param("token") String token);
+
+    @Query("UPDATE UserEntity u SET u.chkPass = :tmpPw WHERE u.id = :userId")
+    int updateChkPass(@Param("userId") String userId, @Param("tmpPw") String tmpPw);
 }
