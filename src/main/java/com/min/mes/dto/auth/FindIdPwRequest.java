@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FindIdPwRequest {
+    private String type;
     private String userId;
     private String userNm;
     private String email;

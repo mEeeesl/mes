@@ -40,7 +40,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청허용
-                        .requestMatchers("/", "/api/auth/login", "/api/auth/reissue", "/api/auth/signup", "/api/auth/**").permitAll() // 루트 페이지, 로그인, 토큰재발급 API 허용 (누구나 접근가능)
+                        .requestMatchers("/", "/api/auth/login", "/api/auth/reissue", "/api/auth/signup", "/api/auth/**", "/api/auth/findId").permitAll() // 루트 페이지, 로그인, 토큰재발급 API 허용 (누구나 접근가능)
                         .requestMatchers("/api/cloud/check").permitAll() // Render HealthCheck URI
                         .anyRequest().authenticated() // 나머지는 로그인 필수
                 )

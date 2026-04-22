@@ -53,6 +53,11 @@ spring:
     configuration:
       map-underscore-to-camel-case: true # USER_ID -> userId (camelCase 변환)
       log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  data:
+    redis:
+      host: localhost
+      port: 80
+
 
 
   #profiles: dev

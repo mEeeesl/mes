@@ -33,7 +33,9 @@ public abstract class BaseWalker {
 
     // 자식 클래스들이 사용할 수 있도록 protected로 선언
     // 실제 로거 객체 (자식 클래스 이름으로 초기화됨)
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    //private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     protected final String commonFailCd = "4000";
     protected final String commmonSuccessCd = "0000";
@@ -149,12 +151,26 @@ public abstract class BaseWalker {
     protected void logInfo(Object obj) {
         // 1. 메시지 전처리 (예: 공백 제거, 특정 단어 필터링 등)
         String processedMsg = "[Walker] " + obj;
+        String threadName = Thread.currentThread().getName();
 
         // 2. 부가 기능 (예: 특정 조건일 때 알림 발송 등)
 
         // 3. 최종 출력 (설정한 쓰레드/타임 포맷에 맞춰 출력됨)
-        logger.info(processedMsg);
+        logger.info(threadName + processedMsg);
     }
+
+    protected void logErr(Throwable e) {
+        // 에러 발생 시 쓰레드 이름 등을 메시지에 강제로 포함할 수도 있음
+        String threadName = Thread.currentThread().getName();
+        logger.error("Thread: {} | data: {}", threadName, e);
+    }
+
+    protected void logErr(Throwable e, String message) {
+        // 에러 발생 시 쓰레드 이름 등을 메시지에 강제로 포함할 수도 있음
+        String threadName = Thread.currentThread().getName();
+        logger.error("[Thread: {}] {} - Error Message: {}", threadName, message, e.getMessage(), e);
+    }
+
 
     protected void logErr(Object obj) {
         // 에러 발생 시 쓰레드 이름 등을 메시지에 강제로 포함할 수도 있음

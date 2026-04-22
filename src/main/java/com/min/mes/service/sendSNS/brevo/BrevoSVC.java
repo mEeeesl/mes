@@ -1,6 +1,9 @@
 package com.min.mes.service.sendSNS.brevo;
 
+import com.min.mes.common.exception.ErrorCode;
+import com.min.mes.common.exception.GlobalException;
 import com.min.mes.entity.UserEntity;
+import com.min.mes.util.RedisUtil;
 import com.min.mes.walker.BaseWalker;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,9 +49,9 @@ public class BrevoSVC extends BaseWalker {
 
 
     public void snedEmail(Map infoMap, UserEntity user) {
+
         String subject = "";
         String htmlContent = "";
-
 
         if("id".equals(infoMap.get("type"))){
             subject = "요청하신 아이디 찾기 결과입니다.";
@@ -64,31 +67,43 @@ public class BrevoSVC extends BaseWalker {
                     "<p>아래의 임시비밀번호로 귀하의 비밀번호를 설정하였으며</p>" +
                     "<p>임시비밀번호로 로그인 후 비밀번호를 변경하여 사용하시기 바랍니다.</p>" +
                     "<p>임시비밀번호: <strong>" + infoMap.get("tmpPw") + "</strong></p>";
+        } else if("authChk".equals(infoMap.get("type"))){
+            subject = "[mes] 인증코드 발신";
+            htmlContent =
+                    "<h3>안녕하세요. mes입니다.</h3>" +
+                    "<p>요청하신 아이디 및 비밀번호 정보를 안전하게 안내해드리기위해</p>" +
+                    "<p>아래의 인증코드를 당사 사이트에 입력해주세요.</p>" +
+                    "<p>해당 인증코드는 1회만 유효합니다.</p>" +
+                    "<p>인증코드: <strong>" + infoMap.get("authCode") + "</strong></p>";
         }
 
-        SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-
-        // 보내는 사람 설정
-        SendSmtpEmailSender sender = new SendSmtpEmailSender();
-        sender.setEmail(brevoSenderEmail);
-        sender.setName(brevoSenderName);
-        sendSmtpEmail.setSender(sender);
-
-
-        // 받는 사람 설정
-        SendSmtpEmailTo to = new SendSmtpEmailTo();
-        to.setEmail(user.getEmail());
-        sendSmtpEmail.setTo(Collections.singletonList(to));
-
-        // 제목 및 내용 (HTML 형식)
-        sendSmtpEmail.setSubject(subject);
-        sendSmtpEmail.setHtmlContent(htmlContent);
-
         try {
+
+            SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
+
+            // 보내는 사람 설정
+            SendSmtpEmailSender sender = new SendSmtpEmailSender();
+            sender.setEmail(brevoSenderEmail);
+            sender.setName(brevoSenderName);
+            sendSmtpEmail.setSender(sender);
+
+
+            // 받는 사람 설정
+            SendSmtpEmailTo to = new SendSmtpEmailTo();
+            to.setEmail(user.getEmail());
+            sendSmtpEmail.setTo(Collections.singletonList(to));
+
+            // 제목 및 내용 (HTML 형식)
+            sendSmtpEmail.setSubject(subject);
+            sendSmtpEmail.setHtmlContent(htmlContent);
+
             apiInstance.sendTransacEmail(sendSmtpEmail);
-            System.out.println("Email sent successfully ");
+            logInfo("Brevo email sent successfully ");
+
         } catch (Exception e) {
-            System.err.println("Exception when calling TransactionalEmailsApi: " + e.getMessage());
+            logErr(e, e.getMessage());
+            new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
+
         }
 
         /*

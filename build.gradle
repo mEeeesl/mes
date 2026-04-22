@@ -65,6 +65,9 @@ dependencies {
 	// Brevo (SMTP - EMAIL)
 	implementation 'com.sendinblue:sib-api-v3-sdk:7.0.0'
 
+	// Spring Data Redis - 저장은 Upstash Cloud Redis 서버 사용
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 tasks.named('test') {
