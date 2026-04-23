@@ -39,7 +39,7 @@ public class FindSVC extends BaseWalker {
         String userId = StringUtil.checkNull(request.getUserId());
         String email = StringUtil.checkNull(request.getEmail());
 
-        try {
+        //try {
 
             if(!"".equals(type)
                     && !"".equals(userNm) && !"".equals(email)){
@@ -47,11 +47,11 @@ public class FindSVC extends BaseWalker {
                 authCode = verificationCodeUtil.generateAlphanumericCode();
                 UserEntity user = null;
 
-                if("id".equals(type)){
+                if("id".equalsIgnoreCase(type)){
                     user = userRepository.findByUserNmAndEmail(userNm, email)
                             .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND, "일치하는 사용자가 없습니다."));
 
-                } else if("pw".equals(type)){
+                } else if("pw".equalsIgnoreCase(type)){
                     user = userRepository.findByUserIdAndUserNmAndEmail(userId, userNm, email)
                             .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND, "일치하는 사용자가 없습니다."));
 
@@ -59,20 +59,28 @@ public class FindSVC extends BaseWalker {
 
                 Map dataMap = new HashMap<String, String>();
                 dataMap.put("type", "authChk");
-                brevoSVC.snedEmail(dataMap, user);
+                dataMap.put("authCode", authCode);
 
-                // Redis(Upstash Cloud)에 저장 (이메일을 키로 사용, 3분간 유효)
-                redisUtil.setDataExpire(email, authCode, 3L);
+                Boolean isSend = brevoSVC.snedEmail(dataMap, user);
+
+                if(isSend){
+                    // Redis(Upstash Cloud)에 저장 (이메일을 키로 사용, 3분간 유효)
+                    redisUtil.setDataExpire(email, authCode, 3L);
+                } else {
+                    authCode = "X";
+                    logErr("이메일 발송에 실패했습니다.");
+                    new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
+                }
 
             } else {
                 logErr("유저 정보가 없습니다.");
                 new GlobalException(ErrorCode.USER_NOT_FOUND);
             }
-
+/*
         } catch (Exception e) {
             throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
-
+*/
         return authCode;
     }
 

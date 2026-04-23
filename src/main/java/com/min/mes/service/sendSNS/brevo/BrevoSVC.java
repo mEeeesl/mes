@@ -4,6 +4,7 @@ import com.min.mes.common.exception.ErrorCode;
 import com.min.mes.common.exception.GlobalException;
 import com.min.mes.entity.UserEntity;
 import com.min.mes.util.RedisUtil;
+import com.min.mes.util.StringUtil;
 import com.min.mes.walker.BaseWalker;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,18 +49,21 @@ public class BrevoSVC extends BaseWalker {
     }
 
 
-    public void snedEmail(Map infoMap, UserEntity user) {
+    public boolean snedEmail(Map infoMap, UserEntity user) {
 
+        boolean isSuccess = false;
+
+        String type = StringUtil.checkNull(infoMap.get("type"));
         String subject = "";
         String htmlContent = "";
 
-        if("id".equals(infoMap.get("type"))){
+        if("id".equalsIgnoreCase(type)){
             subject = "요청하신 아이디 찾기 결과입니다.";
             htmlContent =
                     "<h3>안녕하세요. mes입니다.</h3>" +
                     "<p>요청하신 아이디 정보를 안내해 드립니다.</p>" +
                     "<p>아이디: <strong>" + user.getUserId() + "</strong></p>";
-        } else if("pw".equals(infoMap.get("type"))){
+        } else if("pw".equalsIgnoreCase(type)){
             subject = "요청하신 비밀번호 찾기 결과입니다.";
             htmlContent =
                     "<h3>안녕하세요. mes입니다.</h3>" +
@@ -67,7 +71,7 @@ public class BrevoSVC extends BaseWalker {
                     "<p>아래의 임시비밀번호로 귀하의 비밀번호를 설정하였으며</p>" +
                     "<p>임시비밀번호로 로그인 후 비밀번호를 변경하여 사용하시기 바랍니다.</p>" +
                     "<p>임시비밀번호: <strong>" + infoMap.get("tmpPw") + "</strong></p>";
-        } else if("authChk".equals(infoMap.get("type"))){
+        } else if("authChk".equals(type)){
             subject = "[mes] 인증코드 발신";
             htmlContent =
                     "<h3>안녕하세요. mes입니다.</h3>" +
@@ -99,6 +103,8 @@ public class BrevoSVC extends BaseWalker {
 
             apiInstance.sendTransacEmail(sendSmtpEmail);
             logInfo("Brevo email sent successfully ");
+
+            isSuccess = true;
 
         } catch (Exception e) {
             logErr(e, e.getMessage());
@@ -134,6 +140,6 @@ public class BrevoSVC extends BaseWalker {
             throw new RuntimeException(e);
         }
         */
-
+        return isSuccess;
     }
 }

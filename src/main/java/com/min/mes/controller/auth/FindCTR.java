@@ -35,17 +35,20 @@ public class FindCTR {
     @PostMapping("/find-auth-chk")
     public ResponseEntity<ApiResponse<String>> findAuthChk(@RequestBody FindIdPwRequest request) {
         String authCode = "";
-        try{
+        //try{
             authCode = findSVC.findAccountAuthChk(request);
             if("".equals(authCode)){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ApiResponse.failMsg("일치하는 사용자가 없습니다."));
 
+            } else if("x".equalsIgnoreCase(authCode)){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(ApiResponse.failMsg("이메일 발송에 실패했습니다."));
             }
 
-        } catch (Exception e) {
-            throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
+        //} catch (Exception e) {
+            //throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
+        //}
 
         return ResponseEntity.status(HttpStatus.OK)
                 //.body(ApiResponse.success(authCode));

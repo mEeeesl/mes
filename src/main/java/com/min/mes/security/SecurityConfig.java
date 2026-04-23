@@ -40,7 +40,9 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청허용
-                        .requestMatchers("/", "/api/auth/login", "/api/auth/reissue", "/api/auth/signup", "/api/auth/**", "/api/auth/findId").permitAll() // 루트 페이지, 로그인, 토큰재발급 API 허용 (누구나 접근가능)
+                        // (자유출입) 토큰이 없어도 컨트롤러 메서드 실행 :: 루트 페이지, 로그인, 토큰재발급 API 허용
+                        // URI Path를 등록하지 않은 경우, 무조건 토큰이 있어야함
+                        .requestMatchers("/", "/api/auth/login", "/api/auth/reissue", "/api/auth/signup", "/api/auth/**", "/api/auth/findId", "/api/auth/find-auth-chk").permitAll()
                         .requestMatchers("/api/cloud/check").permitAll() // Render HealthCheck URI
                         .anyRequest().authenticated() // 나머지는 로그인 필수
                 )
