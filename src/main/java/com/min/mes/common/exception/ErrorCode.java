@@ -13,6 +13,8 @@ public enum ErrorCode {
     // Mail
     MAIL_SEND_ERROR(500, "MAIL_001", "메일 발송 중 오류가 발생했습니다."),
 
+    INCORRECT_AUTH_CODE(500, "AUTH_003", "인증번호가 일치하지 않습니다."),
+
     // Common
     INTERNAL_SERVER_ERROR(500, "COMMON_001", "서버 내부 오류가 발생했습니다.");
 

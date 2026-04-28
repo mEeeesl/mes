@@ -1,5 +1,7 @@
 package com.min.mes.service.user;
 
+import com.min.mes.common.exception.ErrorCode;
+import com.min.mes.common.exception.GlobalException;
 import com.min.mes.entity.UserEntity;
 import com.min.mes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,18 @@ public class UserService {
 
         //return userRepository.findByKakaoTokenId(code).orElse(null);
         return userEntity;
+    }
+
+    public UserEntity getUserByUserNmAndEmail(String userNm, String email) {
+        return userRepository.findByUserNmAndEmail(userNm, email)
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND, "일치하는 사용자가 없습니다."));
+
+    }
+
+    public UserEntity getUserByUserIdAndUserNmAndEmail(String userId, String userNm, String email) {
+        return userRepository.findByUserIdAndUserNmAndEmail(userId, userNm, email)
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND, "일치하는 사용자가 없습니다."));
+
     }
 
     public void updateRefreshToken(String userId, String newToken) {

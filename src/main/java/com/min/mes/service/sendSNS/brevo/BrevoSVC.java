@@ -49,11 +49,11 @@ public class BrevoSVC extends BaseWalker {
     }
 
 
-    public boolean snedEmail(Map infoMap, UserEntity user) {
+    public boolean snedEmail(Map dataMap, UserEntity user) {
 
         boolean isSuccess = false;
 
-        String type = StringUtil.checkNull(infoMap.get("type"));
+        String type = StringUtil.checkNull(dataMap.get("type"));
         String subject = "";
         String htmlContent = "";
 
@@ -70,7 +70,7 @@ public class BrevoSVC extends BaseWalker {
                     "<p>요청하신 비밀번호 정보를 안내해 드립니다.</p>" +
                     "<p>아래의 임시비밀번호로 귀하의 비밀번호를 설정하였으며</p>" +
                     "<p>임시비밀번호로 로그인 후 비밀번호를 변경하여 사용하시기 바랍니다.</p>" +
-                    "<p>임시비밀번호: <strong>" + infoMap.get("tmpPw") + "</strong></p>";
+                    "<p>임시비밀번호: <strong>" + dataMap.get("tmpPw") + "</strong></p>";
         } else if("authChk".equals(type)){
             subject = "[mes] 인증코드 발신";
             htmlContent =
@@ -78,7 +78,7 @@ public class BrevoSVC extends BaseWalker {
                     "<p>요청하신 아이디 및 비밀번호 정보를 안전하게 안내해드리기위해</p>" +
                     "<p>아래의 인증코드를 당사 사이트에 입력해주세요.</p>" +
                     "<p>해당 인증코드는 1회만 유효합니다.</p>" +
-                    "<p>인증코드: <strong>" + infoMap.get("authCode") + "</strong></p>";
+                    "<p>인증코드: <strong>" + dataMap.get("authCode") + "</strong></p>";
         }
 
         try {

@@ -6,6 +6,7 @@ import com.min.mes.dto.user.UserVO;
 import com.min.mes.entity.UserEntity;
 import com.min.mes.mapper.user.UserMapper;
 import com.min.mes.repository.UserRepository;
+import com.min.mes.service.user.UserService;
 import com.min.mes.util.EncryptionUtils;
 import com.min.mes.util.StringUtil;
 import com.min.mes.walker.BaseWalker;
@@ -21,6 +22,7 @@ import java.util.Optional;
     public class LoginSVC extends BaseWalker {
 
         private final UserRepository userRepository;
+        private final UserService userService;
         private final UserMapper userMapper;
         /*
         public LoginSVC(UserRepository repo) {
@@ -31,9 +33,13 @@ import java.util.Optional;
             boolean isSuccess = false;
 
             // DB조회
+            /*
             UserEntity userEntity = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
                     //.orElse(null);
+             */
+
+            UserEntity userEntity = userService.getUser(userId);
 
             if(userEntity != null){
 
@@ -80,27 +86,6 @@ import java.util.Optional;
             //return new ApiResponse<>(200, "성공", null);
             //return isSuccess;
         }
-
-        public UserEntity getUser(String userId) throws Exception {
-            Map resMap = new HashMap();
-
-            try{
-
-
-                String path = getClass().getClassLoader().getResource("").getPath();
-                logInfo("현재 Classpath 루트 경로: " + path);
-
-
-            } catch (Exception e) {
-                logErr(e.getMessage());
-            }
-
-            return userRepository.findById(userId)
-                    .orElse(null);
-        }
-
-
-
 
     }
 

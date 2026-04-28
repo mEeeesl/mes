@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  # 로컬용 Redis 설정
+  # 도커 컴포즈(Docker Compose)로 Redis 개발 환경을 컨테이너화하여 로컬 환경 구축
+  local-redis:
+    image: redis:alpine
+    container_name: local-redis
+    ports:
+      - "6379:6379"
+    # 로컬은 비밀번호 없이 사용 (필요시 추가 가능)
+    command: redis-server --loglevel warning
+
+# 로컬 개발 시 Redis 컨테이너 실행 (백그라운드)
+# docker compose up -d
+
+# 상태확인
+# docker ps
+
+# 로그확인
+# docker logs -f local-redis

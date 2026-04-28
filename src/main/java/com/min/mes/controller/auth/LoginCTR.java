@@ -8,6 +8,7 @@ import com.min.mes.repository.UserRepository;
 import com.min.mes.service.LoginSVC;
 import com.min.mes.service.user.UserService;
 import com.min.mes.util.JwtUtil;
+import com.min.mes.util.RedisUtil;
 import com.min.mes.util.StringUtil;
 import com.min.mes.walker.BaseWalker;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -41,6 +42,9 @@ public class LoginCTR extends BaseWalker {
     private final KakaoSVC kakaoSVC;
     private final AppProperties appProperties;
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
+
+    private static final long REFRESH_TOKEN_EXP = 7 * 24 * 60 * 60 * 1000L; // 7일 (초 단위)
 
     @Autowired
     private UserRepository userRepository;
@@ -74,8 +78,11 @@ public class LoginCTR extends BaseWalker {
                 accessToken = jwtUtil.generateToken(user.getUserId(), user.getUserNm());
                 refreshToken = jwtUtil.generateToken(user.getUserId(), user.getUserNm());
 
-                // ( refreshToken DB에 저장 - 추후 대조 )
+                // ( refreshToken DB에 저장 - 추후 대조 - 추후 컬럼 삭제 예정)
                 userService.updateRefreshToken(user.getUserId(), refreshToken);
+
+                // Redis 저장
+                redisUtil.setValue("RT:" + user.getUserId(), refreshToken, REFRESH_TOKEN_EXP);
 
                 // ( 쿠키 굽기 )
                 accessCookie = jwtUtil.createCookie("accessToken", accessToken);
@@ -142,6 +149,8 @@ public class LoginCTR extends BaseWalker {
                 //.orElseThrow(() -> new RuntimeException("Refresh Token이 없습니다."));
                 .orElse(null);
 
+
+
         // 없는 경우..
         if(refreshToken == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh Token이 없습니다.");
@@ -151,16 +160,26 @@ public class LoginCTR extends BaseWalker {
             // 2. 토큰 검증 및 유저 ID 추출
             String userId = JwtUtil.validateToken(refreshToken);
 
-            // 3. DB에 저장된 토큰과 일치하는지 확인
-            UserEntity user = userService.getUser(userId);
+            // Redis 추가 저장된 리프레쉬 토큰 가져오기
+            String redisRefreshToken = redisUtil.getValue("RT:" + userId);
 
-            // 3-1 DB에 없거나, 브라우저에서 보낸 것과 다르면 "부정 접근"으로 간주
-            if(user == null || !refreshToken.equals(user.getChkToken())){
+            // Redis에 없거나(만료), 들고 온 토큰과 일치하지 않는 경우
+            if (userId == null || redisRefreshToken == null || !redisRefreshToken.equals(refreshToken)) {
                 jwtUtil.deleteCookie(response, "refreshToken");
                 jwtUtil.deleteCookie(response, "accessToken");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 세션입니다. 다시 로그인 해주세요.");
             }
 
+            // 3. DB에 저장된 토큰과 일치하는지 확인 - 추후 삭제 예정
+            UserEntity user = userService.getUser(userId);
+/*
+            // 3-1 DB에 없거나, 브라우저에서 보낸 것과 다르면 "부정 접근"으로 간주 -- 추후 삭제 예정
+            if(user == null || !refreshToken.equals(user.getChkToken())){
+                jwtUtil.deleteCookie(response, "refreshToken");
+                jwtUtil.deleteCookie(response, "accessToken");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 세션입니다. 다시 로그인 해주세요.");
+            }
+*/
             // 4. 새로운 AccessToken 생성 및 쿠키 설정 (Refresh는 그대로 써도 되고, 같이 갱신해도 됨..)
             String newAccessToken = jwtUtil.generateToken(userId, user.getUserNm());
             ResponseCookie newAccessCookie = jwtUtil.createCookie("accessToken", newAccessToken);
@@ -214,7 +233,7 @@ public class LoginCTR extends BaseWalker {
         try {
             String userId = StringUtil.checkNull(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
-            if(!"".equals(userId)){
+            if(!"".equals(userId) && !"anonymousUser".equals(userId)){
                 user = userService.getUser(userId);
                 returnMap.put("userId", user.getUserId());
                 returnMap.put("userNm", user.getUserNm());
@@ -285,7 +304,10 @@ public class LoginCTR extends BaseWalker {
         logInfo("userId :::: " + userId);
 
         // 2. DB에서 CHK_TOKEN 삭제
-        userService.updateRefreshToken(userId, null);
+        //userService.updateRefreshToken(userId, null);
+
+        // Redis에서 삭제
+        redisUtil.delValue("RT:" + userId);
 
         /* as-is
         // 3. 쿠키 만료(Max-Age : 0)

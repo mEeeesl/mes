@@ -26,9 +26,14 @@ import java.util.Map;
 public class WorkCTR extends BaseWalker {
 
     // 회사 좌표
+    // 일원역
+    /*
     private static final double COMPANY_LAT = 37.4836;
     private static final double COMPANY_LNG = 127.0844;
-
+    */
+    // Jara
+    private static final double COMPANY_LAT = 37.2326866;
+    private static final double COMPANY_LNG = 127.3606248;
     @Autowired
     private UserRepository userRepository;
 

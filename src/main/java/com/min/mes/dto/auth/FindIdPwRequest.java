@@ -12,5 +12,6 @@ public class FindIdPwRequest {
     private String userId;
     private String userNm;
     private String email;
+    private String authCode;
 
 }

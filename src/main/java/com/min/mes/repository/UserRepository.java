@@ -21,6 +21,8 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     @Query("UPDATE UserEntity u SET u.chkToken = :token WHERE u.id = :userId")
     int updateChkToken(@Param("userId") String userId, @Param("token") String token);
 
+    @Modifying(clearAutomatically = true) // 실행 후 영속성 컨텍스트 초기화
+    @Transactional
     @Query("UPDATE UserEntity u SET u.chkPass = :tmpPw WHERE u.id = :userId")
     int updateChkPass(@Param("userId") String userId, @Param("tmpPw") String tmpPw);
 }

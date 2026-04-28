@@ -61,9 +61,15 @@ public class FindCTR {
      */
     @PostMapping("/find-id")
     public ResponseEntity<ApiResponse<String>> findId(@RequestBody FindIdPwRequest request) {
-        findSVC.findId(request);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success("입력하신 이메일로 아이디 정보를 발송했습니다."));
+        String userId = StringUtil.checkNull(findSVC.findId(request));
+
+        if(!"".equals(userId)) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.success(userId));
+        } else {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.fail(""));
+        }
     }
 
     /**
@@ -72,9 +78,14 @@ public class FindCTR {
      */
     @PostMapping("/find-pw")
     public ResponseEntity<ApiResponse<String>> findPw(@RequestBody FindIdPwRequest request) {
-        findSVC.findPw(request);
+        String tempPw = StringUtil.checkNull(findSVC.findPw(request));
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success("입력하신 이메일로 임시 비밀번호 정보를 발송했습니다."));
+        if(!"".equals(tempPw)) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.success(tempPw));
+        } else {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.fail(""));
+        }
     }
 }
