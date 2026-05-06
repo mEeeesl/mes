@@ -13,7 +13,7 @@ public class RedisUtil {
 
     // 인증번호 저장 (key: 이메일, value: 인증번호, duration: 만료시간/분)
     public void setValue(String key, String value, long duration) {
-        redisTemplate.opsForValue().set(key, value, duration, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, value, duration, TimeUnit.MILLISECONDS);
     }
 
     // 인증번호 가져오기

@@ -77,7 +77,7 @@ public class FindSVC extends BaseWalker {
 
                 if(isSend){
                     // Redis(Upstash Cloud)에 저장 (이메일을 키로 사용, 3분간 유효)
-                     redisUtil.setValue(email, authCode, 3L);
+                     redisUtil.setValue(email, authCode, 3 * 60 * 1000L);
                 } else {
                     authCode = "X";
                     logErr("이메일 발송에 실패했습니다.");
