@@ -66,27 +66,12 @@ public class JwtUtil {
     // ( 응답용 쿠키 생성 (Access / Refresh 공용) )
     public ResponseCookie createCookie(String name, String value) {
 
+
+
         System.out.println("#########################################################################");
         System.out.println("isReal ? " + isReal);
         System.out.println("#########################################################################");
 
-        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, value)
-                .httpOnly(true)
-                .secure(isReal)
-                .path("/")
-                .maxAge(REFRESH_TOKEN_EXP)
-                .sameSite(isReal ? "None" : "Lax");
-
-        if (isReal) {
-            // 도메인 앞에 마침표(.)를 붙이면 서브도메인까지 포함됩니다.
-            // .vercel.app으로 설정하면 eeesel.vercel.app에서 접근 가능해집니다.
-            builder.domain(".vercel.app");
-        }
-
-        return builder.build();
-
-
-        /*
         return ResponseCookie.from(name, value) // 쿠키 키, 밸류
                 .httpOnly(true) // JS 접근 차단(XSS 방지)
                 //.secure(appProperties.isReal()) // HTTPS만 전송(로컬테스트시 false)
@@ -97,7 +82,6 @@ public class JwtUtil {
                 //.sameSite("None") // 크로스사이트 전송가능한 쿠키로 생성
                 .sameSite(isReal ? "None" : "Lax")
                 .build();
-         */
     }
 
     // ( 토큰에서 UserId 추출 )
