@@ -3,11 +3,9 @@ package com.min.mes.service.user;
 import com.min.mes.common.exception.ErrorCode;
 import com.min.mes.common.exception.GlobalException;
 import com.min.mes.entity.UserEntity;
-import com.min.mes.repository.UserRepository;
+import com.min.mes.repository.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

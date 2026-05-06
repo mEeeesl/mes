@@ -1,15 +1,13 @@
 package com.min.mes.service.auth;
 
-import com.min.mes.ApiResponse;
 import com.min.mes.controller.kakao.KakaoSVC;
 import com.min.mes.dto.auth.SignupDTO;
 import com.min.mes.entity.UserEntity;
-import com.min.mes.repository.UserRepository;
+import com.min.mes.repository.jpa.UserRepository;
 import com.min.mes.util.EncryptionUtils;
 import com.min.mes.util.StringUtil;
 import com.min.mes.walker.BaseWalker;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

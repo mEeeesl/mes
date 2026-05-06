@@ -4,7 +4,7 @@ import com.min.mes.ApiResponse;
 import com.min.mes.AppProperties;
 import com.min.mes.controller.kakao.KakaoSVC;
 import com.min.mes.entity.UserEntity;
-import com.min.mes.repository.UserRepository;
+import com.min.mes.repository.jpa.UserRepository;
 import com.min.mes.service.LoginSVC;
 import com.min.mes.service.user.UserService;
 import com.min.mes.util.JwtUtil;
@@ -109,6 +109,7 @@ public class LoginCTR extends BaseWalker {
             //return new ApiResponse<>(200, "성공이요", null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             logErr(e.getMessage());
 
             return ResponseEntity

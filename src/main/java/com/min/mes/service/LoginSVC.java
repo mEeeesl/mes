@@ -1,11 +1,8 @@
 package com.min.mes.service;
 
-import com.min.mes.ApiResponse;
-import com.min.mes.auth.JWTAuth;
-import com.min.mes.dto.user.UserVO;
 import com.min.mes.entity.UserEntity;
 import com.min.mes.mapper.user.UserMapper;
-import com.min.mes.repository.UserRepository;
+import com.min.mes.repository.jpa.UserRepository;
 import com.min.mes.service.user.UserService;
 import com.min.mes.util.EncryptionUtils;
 import com.min.mes.util.StringUtil;
@@ -13,9 +10,7 @@ import com.min.mes.walker.BaseWalker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
     @RequiredArgsConstructor
@@ -42,9 +37,10 @@ import java.util.Optional;
             UserEntity userEntity = userService.getUser(userId);
 
             if(userEntity != null){
+                String pwEncSHA256 = StringUtil.checkNull(EncryptionUtils.encSHA256(chkPass));
 
                 // PW CHK - SHA256
-                if(!userEntity.getChkPass().equals(EncryptionUtils.encSHA256(chkPass))){
+                if(!"".equals(pwEncSHA256) && !userEntity.getChkPass().equals(pwEncSHA256)){
                     //throw new RuntimeException("비밀번호가 일치하지 않습니다.");
 
                     return Map.of(

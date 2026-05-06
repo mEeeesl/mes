@@ -4,7 +4,7 @@ import com.min.mes.common.exception.ErrorCode;
 import com.min.mes.common.exception.GlobalException;
 import com.min.mes.dto.auth.FindIdPwRequest;
 import com.min.mes.entity.UserEntity;
-import com.min.mes.repository.UserRepository;
+import com.min.mes.repository.jpa.UserRepository;
 import com.min.mes.service.sendSNS.brevo.BrevoSVC;
 import com.min.mes.service.user.UserService;
 import com.min.mes.util.*;
@@ -12,7 +12,6 @@ import com.min.mes.walker.BaseWalker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
 import java.util.Map;

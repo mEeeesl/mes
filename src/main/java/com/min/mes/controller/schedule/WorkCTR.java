@@ -1,7 +1,7 @@
 package com.min.mes.controller.schedule;
 
 import com.min.mes.ApiResponse;
-import com.min.mes.repository.UserRepository;
+import com.min.mes.repository.jpa.UserRepository;
 import com.min.mes.util.GeoUtil;
 import com.min.mes.util.StringUtil;
 import com.min.mes.walker.BaseWalker;

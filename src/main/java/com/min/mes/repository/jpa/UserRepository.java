@@ -1,4 +1,4 @@
-package com.min.mes.repository;
+package com.min.mes.repository.jpa;
 
 import com.min.mes.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
