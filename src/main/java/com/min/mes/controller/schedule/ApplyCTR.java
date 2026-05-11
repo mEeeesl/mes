@@ -30,7 +30,7 @@ public class ApplyCTR extends BaseWalker {
     private final UserDtlRepository userDtlRepository;
 
     @PostMapping("check-status")
-    public ResponseEntity<ApiResponse> existsByPersonalId (@RequestBody Map<String, Object> paramMap) {
+    public ResponseEntity<ApiResponse> existsByPersonalId (@RequestBody(required = false) Map<String, Object> paramMap) { // 파라미터 없음
         Boolean isExist = false;
 
         try {
