@@ -38,7 +38,11 @@ public class FindCTR {
         //try{
             authCode = findSVC.findAccountAuthChk(request);
             if("".equals(authCode)){
+                /*
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.failMsg("일치하는 사용자가 없습니다."));
+                 */
+                return ResponseEntity.status(HttpStatus.OK)
                         .body(ApiResponse.failMsg("일치하는 사용자가 없습니다."));
 
             } else if("x".equalsIgnoreCase(authCode)){

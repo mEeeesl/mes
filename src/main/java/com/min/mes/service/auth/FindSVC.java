@@ -37,7 +37,7 @@ public class FindSVC extends BaseWalker {
         String userId = StringUtil.checkNull(request.getUserId());
         String email = StringUtil.checkNull(request.getEmail());
 
-        //try {
+        try {
 
             if(!"".equals(type)
                     && !"".equals(userNm) && !"".equals(email)){
@@ -66,6 +66,7 @@ public class FindSVC extends BaseWalker {
                 if(user == null) {
                     logErr("유저 정보가 없습니다.");
                     new GlobalException(ErrorCode.USER_NOT_FOUND);
+                    return "";
                 }
 
 
@@ -85,14 +86,14 @@ public class FindSVC extends BaseWalker {
                 }
 
             } else {
-                logErr("유저 정보가 없습니다.");
+                logErr("입력하신 정보가 올바르지 않습니다.");
                 new GlobalException(ErrorCode.USER_NOT_FOUND);
+                return "";
             }
-/*
+
         } catch (Exception e) {
             throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
-*/
         return authCode;
     }
 

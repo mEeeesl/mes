@@ -43,7 +43,7 @@ public class SignupCTR extends BaseWalker {
 
             if (isExist) {
                 resMap.put("cd", commonFailCd);
-                resMap.put("msg", "이미 존재하는 사용자입니다.");
+                resMap.put("msg", "이미 사용중인 아이디입니다.");
                 resMap.put("data", "");
             } else {
                 resMap.put("cd", commmonSuccessCd);
@@ -82,10 +82,31 @@ public class SignupCTR extends BaseWalker {
             resMap.put("data", "");
         } else {
             paramMap.put("kakao_token", dto.getKakaoCode());
-            signupSVC.insertUser(dto, paramMap);
 
-            resMap.put("cd", commmonSuccessCd);
-            resMap.put("msg", "회원가입이 완료되었습니다.");
+            String cd = signupSVC.insertUser(dto, paramMap);
+
+            if("2001".equals(cd)){
+
+                resMap.put("cd", commonFailCd);
+                resMap.put("msg", "카카오 인증 코드가 유효하지 않습니다.");
+
+            } else if("2002".equals(cd)){
+
+                resMap.put("cd", commonFailCd);
+                resMap.put("msg", "카카오 사용자 정보를 불러올 수 없습니다.");
+
+            } else if("2003".equals(cd)){
+
+                resMap.put("cd", commonFailCd);
+                resMap.put("msg", "가입된 계정이 존재합니다.");
+
+            } else if("0000".equals(cd)){
+
+                resMap.put("cd", commmonSuccessCd);
+                resMap.put("msg", "회원가입이 완료되었습니다.");
+
+            }
+
             resMap.put("data", "");
 
         }
