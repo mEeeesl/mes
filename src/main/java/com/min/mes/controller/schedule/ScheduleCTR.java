@@ -3,9 +3,11 @@ package com.min.mes.controller.schedule;
 import com.min.mes.ApiResponse;
 import com.min.mes.common.exception.ErrorCode;
 import com.min.mes.common.exception.GlobalException;
+import com.min.mes.entity.UserDtlEntity;
 import com.min.mes.entity.schedule.UserWorkScheduleEntity;
 import com.min.mes.repository.jpa.UserDtlRepository;
 import com.min.mes.repository.jpa.schedule.UserWorkScheduleRepository;
+import com.min.mes.service.user.UserService;
 import com.min.mes.util.StringUtil;
 import com.min.mes.walker.BaseWalker;
 import jakarta.transaction.Transactional;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,14 +35,16 @@ public class ScheduleCTR extends BaseWalker {
 
     private final UserDtlRepository userDtlRepository;
     private final UserWorkScheduleRepository userWorkScheduleRepository;
+    private final UserService userService;
 
     @PostMapping("check-status")
-    public ResponseEntity<ApiResponse> existsByPersonalId (@RequestBody(required = false) Map<String, Object> paramMap) { // 파라미터 없음
+    public ResponseEntity<ApiResponse> existsByPersonalId (@AuthenticationPrincipal String userId, @RequestBody(required = false) Map<String, Object> paramMap) { // 파라미터 없음
         Boolean isExist = false;
 
         try {
-            String userId = StringUtil.checkNull(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-            isExist = userDtlRepository.existsByJu1(userId);
+            //String userId = StringUtil.checkNull(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            //isExist = userDtlRepository.existsByJu1(userId);
+            isExist = userDtlRepository.isJuNotEmpty(userId);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,7 +54,7 @@ public class ScheduleCTR extends BaseWalker {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
                         Map.of(
-                                "existYn", isExist
+                                "isExist", isExist
                         )
                 ));
     }
@@ -88,48 +93,62 @@ public class ScheduleCTR extends BaseWalker {
     }
 
     @PostMapping("apply")
-    @Transactional // DB 저장이 포함되므로 반드시 추가
+    @Transactional
     public ResponseEntity<ApiResponse> scheduleApply (@RequestBody Map<String, Object> paramMap) {
         Map<String, Object> dataMap = new HashMap<>();
-        logInfo("paramMap :: " + paramMap);
 
         try {
             String userId = StringUtil.checkNull(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
-            // 날짜 리스트 처리 (dates=[2026-05-13])
-            List<String> dateStrings = (List<String>) paramMap.get("dates");
-            String brand = (String) paramMap.get("brand");
-            String shuttleRegion = (String) paramMap.get("shuttleRegion");
-            String shuttleStop = (String) paramMap.get("shuttleStop");
 
-            for (String dateStr : dateStrings) {
-                // String -> LocalDateTime 변환 (시간은 00:00:00으로 세팅하거나 정책에 따름)
-                LocalDateTime apntDt = LocalDateTime.parse(dateStr + "T00:00:00");
 
-                // 1. 중복 체크 (Double Check)
-                if (userWorkScheduleRepository.existsByUserIdAndApntDt(userId, apntDt)) {
-                    logInfo("이미 신청된 날짜 포함: " + dateStr);
-                    continue; // 혹은 에러를 던질 수 있음
+            if("".equals(userId)){
+
+            } else {
+
+                // 1. UserDetail 수정
+                UserDtlEntity userDtlEntity = userDtlRepository.findById(userId).orElseThrow();
+                if(userDtlEntity.getJu1() == null) {
+                    paramMap.put("userId", userId);
+                    userService.updateUserDtl(paramMap);
                 }
 
-                // 2. Entity 생성 및 저장
-                UserWorkScheduleEntity schedule = UserWorkScheduleEntity.builder()
-                        .userId(userId)
-                        .apntDt(apntDt)
-                        .groupCd("mk_jw") // 고정값 혹은 설정값
-                        .brandCd(brand)
-                        .sttlArea(shuttleRegion)
-                        .sttlLctn(shuttleStop)
-                        .chkYn("N")
-                        .workCnfmYn("N")
-                        .workYn("N")
-                        .build();
+                // 2. 스케쥴 추가
+                // 날짜 리스트 처리 (dates=[2026-05-13])
+                List<String> dateList = (List<String>) paramMap.get("dates");
+                String brand = (String) paramMap.get("brand");
+                String shuttleRegion = (String) paramMap.get("shuttleRegion");
+                String shuttleStop = (String) paramMap.get("shuttleStop");
 
-                userWorkScheduleRepository.save(schedule);
+                for (String dateStr : dateList) {
+                    // String -> LocalDateTime 변환 (시간 00:00:00 세팅)
+                    LocalDateTime apntDt = LocalDateTime.parse(dateStr + "T00:00:00");
+
+                    // 2-1. 중복 체크 (Double Check)
+                    if (userWorkScheduleRepository.existsByUserIdAndApntDt(userId, apntDt)) {
+                        logInfo("이미 신청한 날짜 : " + dateStr);
+
+                        continue; // 혹은 throws
+                    }
+
+                    // 2-2. Entity 생성 및 저장
+                    UserWorkScheduleEntity schedule = UserWorkScheduleEntity.builder()
+                            .userId(userId)
+                            .apntDt(apntDt)
+                            .groupCd("mk_jw") // 고정값 혹은 설정값
+                            .brandCd(brand)
+                            .sttlArea(shuttleRegion)
+                            .sttlLctn(shuttleStop)
+                            .chkYn("N")
+                            .workCnfmYn("N")
+                            .workYn("N")
+                            .build();
+
+                    userWorkScheduleRepository.save(schedule);
+                }
+
+                dataMap.put("result", "success");
             }
-
-            dataMap.put("result", "success");
-
         } catch (Exception e) {
             logErr("Apply Error", e);
             throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR);
